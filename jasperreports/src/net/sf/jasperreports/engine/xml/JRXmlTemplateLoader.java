@@ -56,14 +56,15 @@ import org.xml.sax.SAXException;
  */
 public class JRXmlTemplateLoader
 {
-	
 	private static final Log log = LogFactory.getLog(JRXmlTemplateLoader.class);
 	
 	public static final String EXCEPTION_MESSAGE_KEY_TEMPLATE_NOT_FOUND = "xml.template.loader.template.not.found";
 	public static final String EXCEPTION_MESSAGE_KEY_TEMPLATE_PARSING_ERROR = "xml.template.loader.template.parsing.error";
 	public static final String EXCEPTION_MESSAGE_KEY_TEMPLATE_READING_ERROR = "xml.template.loader.template.reading.error";
 	public static final String EXCEPTION_MESSAGE_KEY_URL_CONNECTION_ERROR = "xml.template.loader.url.connection.error";
-	
+
+	private static final JRXmlDigester defaultDigester = JRXmlTemplateDigesterFactory.instance().createDigester(DefaultJasperReportsContext.getInstance());
+
 	private JasperReportsContext jasperReportsContext;
 	
 	/**
@@ -201,7 +202,12 @@ public class JRXmlTemplateLoader
 	 */
 	public JRTemplate loadTemplate(InputStream data)
 	{
-		JRXmlDigester digester = JRXmlTemplateDigesterFactory.instance().createDigester(jasperReportsContext);
+		JRXmlDigester digester;
+		if(jasperReportsContext.equals(DefaultJasperReportsContext.getInstance())) {
+			digester = defaultDigester;
+		} else {
+			digester = JRXmlTemplateDigesterFactory.instance().createDigester(jasperReportsContext);
+		}
 		try
 		{
 			return (JRTemplate) digester.parse(data);
